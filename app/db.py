@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.engine import make_url
 
 from .config import settings
 
@@ -12,8 +13,18 @@ class Base(DeclarativeBase):
     pass
 
 
+# Normalize the DATABASE URL to use asyncpg when using async engine.
+# This avoids requiring psycopg2 (which needs pg_config to build on some Python versions).
+db_url = settings.database_url
+if db_url:
+    # handle Heroku-style DATABASE_URL (postgres://) and plain postgresql://
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 engine = create_async_engine(
-    settings.database_url,
+    db_url,
     future=True,
 )
 
