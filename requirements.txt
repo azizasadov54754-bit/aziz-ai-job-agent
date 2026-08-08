@@ -17,3 +17,5 @@ google-genai==1.31.0
 google-api-python-client==2.179.0
 google-auth-oauthlib==1.2.2
 google-auth-httplib2==0.2.0
+# PostgreSQL driver
+psycopg2-binary==2.9.7
